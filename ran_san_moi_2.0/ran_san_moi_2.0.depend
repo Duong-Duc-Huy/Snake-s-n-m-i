@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1652086437 source:g:\ran_san_moi_2.0\main.cpp
+1652719292 source:g:\ran_san_moi_2.0\main.cpp
 	<iostream>
 	<string>
 	<SDL.h>
@@ -7,4 +7,6 @@
 	<vector>
 	<cstdlib>
 	<ctime>
+	<chrono>
+	<SDL_mixer.h>
 

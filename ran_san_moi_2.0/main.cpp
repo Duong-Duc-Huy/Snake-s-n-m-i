@@ -5,13 +5,27 @@
 #include <vector>
 #include <cstdlib>
 #include <ctime>
+#include <chrono>
+#include <SDL_mixer.h>
 
 using namespace std;
 
+Mix_Chunk* sound_eat ;
+Mix_Chunk* sound_menu ;
+Mix_Music* sound_bg ;
+Mix_Chunk* sound_lost ;
+
 const int buoc = 25;
-const int SCREEN_WIDTH = 800;
+const int SCREEN_WIDTH = 1150;
 const int SCREEN_HEIGHT = 600;
 const string WINDOW_TITLE = "Snake";
+
+// số giây giữa hai lần vẽ
+const double STEP_DELAY = 0.01;
+// tên ngắn của hàm lấy thời gian
+#define CLOCK_NOW chrono::system_clock::now
+// Kiểu đại diện cho khoảng thời gian (tính theo giây)
+typedef chrono::duration<double> ElapsedTime;
 
 class Food{
 private:
@@ -51,7 +65,7 @@ public:
     Snake(){
         x = 0;
         y = 100;
-        size_snake = 3;
+        size_snake = 5;
         stepX = buoc;
         stepY = 0;
         point = { {0,100} };
@@ -108,6 +122,7 @@ public:
 void initSDL(SDL_Window* &window, SDL_Renderer* &renderer);
 void logSDLError(std::ostream& os,const std::string &msg, bool fatal = false);
 void quitSDL(SDL_Window* window, SDL_Renderer* renderer);
+void waitUntilKeyPressed(SDL_Window* window, SDL_Renderer* renderer);
 SDL_Texture *IMG_LoadTexture(SDL_Renderer *renderer, const char *file);
 
 int main(int argc, char* argv[])
@@ -121,10 +136,29 @@ int main(int argc, char* argv[])
 
     SDL_Texture * background=IMG_LoadTexture( renderer, "background.jpg");
     SDL_Rect background_rect;
-    background_rect.x=0;
-    background_rect.y=0;
-    background_rect.h = 600;
-    background_rect.w = 800;
+    background_rect.x = 0;
+    background_rect.y = 0;
+    background_rect.h = SCREEN_HEIGHT;
+    background_rect.w = SCREEN_WIDTH;
+
+    SDL_Texture * menu=IMG_LoadTexture( renderer, "menu.jpg");
+    SDL_Rect menu_rect;
+    menu_rect.x = 0;
+    menu_rect.y = 0;
+    menu_rect.h = SCREEN_HEIGHT;
+    menu_rect.w = SCREEN_WIDTH;
+
+    SDL_Texture * gameOver=IMG_LoadTexture( renderer, "game_over.jpg");
+    SDL_Rect gameOver_rect;
+    gameOver_rect.x = 0;
+    gameOver_rect.y = 0;
+    gameOver_rect.h = SCREEN_HEIGHT;
+    gameOver_rect.w = SCREEN_WIDTH;
+
+    SDL_Texture* wall = IMG_LoadTexture( renderer, "wall.png");
+    SDL_Rect wall_rect;
+    wall_rect.h = buoc;
+    wall_rect.w = buoc;
 
     SDL_Texture* food_img = IMG_LoadTexture( renderer, "pickup.png");
     SDL_Rect food_rect;
@@ -142,13 +176,32 @@ int main(int argc, char* argv[])
     ran_rect.h = buoc;
     ran_rect.w = buoc;
 
+    sound_eat = Mix_LoadWAV("Sound/Eat.wav");
+    sound_lost = Mix_LoadWAV("Sound/Lose.wav");
+    sound_bg = Mix_LoadMUS("Sound/bg_audio.wav");
+
+    // vẽ menu
+    SDL_RenderCopy ( renderer, menu, NULL, &menu_rect);
+    SDL_RenderPresent( renderer );
+    waitUntilKeyPressed(window, renderer);
+
     SDL_Event e;
     int tmp=0,n=-1;
-    while (true) {
-//      draw background
-        SDL_RenderCopy ( renderer, background, NULL, &background_rect);
 
+    auto start = CLOCK_NOW();
+    Mix_PlayMusic(sound_bg, -1);
+    while (true){
+        //Mix_PlayMusic(sound_bg, -1);
         snake.move();
+        if(!snake.checkDie()){
+            Mix_PlayChannel(-1,sound_lost,0) ;
+            SDL_RenderCopy ( renderer, gameOver, NULL, &gameOver_rect);
+            SDL_RenderPresent( renderer );
+            waitUntilKeyPressed(window, renderer);
+            quitSDL(window, renderer);
+        }
+
+        SDL_RenderCopy ( renderer, background, NULL, &background_rect);
 
         ran_rect.x = snake.getX();
         ran_rect.y = snake.getY();
@@ -160,65 +213,86 @@ int main(int argc, char* argv[])
         for(int i=arr.size()-2;i>=arr.size()-1-n;i--){
             body_rect.x = arr[i][0];
             body_rect.y = arr[i][1];
-            if(ran_rect.x == body_rect.x && ran_rect.y == body_rect.y) quitSDL(window, renderer);
+            if(ran_rect.x == body_rect.x && ran_rect.y == body_rect.y){
+                Mix_PlayChannel(-1,sound_lost,0) ;
+                SDL_RenderCopy ( renderer, gameOver, NULL, &gameOver_rect);
+                SDL_RenderPresent( renderer );
+                waitUntilKeyPressed(window, renderer);
+                quitSDL(window, renderer);
+            }
             SDL_RenderCopy ( renderer, snake_body, NULL, &body_rect);
         }
 
-        SDL_RenderCopy ( renderer, food_img, NULL, &food_rect);
-        SDL_RenderCopy ( renderer, snake_head, NULL, &ran_rect);
-        SDL_RenderPresent( renderer );
-        SDL_RenderClear( renderer );
-        SDL_Delay(250);
-
-        if(snake.eat(food)){
-            food.newPoint();
+        auto now = CLOCK_NOW();
+        ElapsedTime elapsed = now - start;
+        if (elapsed.count() > STEP_DELAY){
+            SDL_RenderCopy ( renderer, food_img, NULL, &food_rect);
+            SDL_RenderCopy ( renderer, snake_head, NULL, &ran_rect);
+            SDL_RenderPresent( renderer );
+            SDL_RenderClear( renderer );
+            start = now;
         }
 
-        if( SDL_PollEvent(&e) == 0) continue;
-        if(e.type == SDL_QUIT || !snake.checkDie()) break;
-        if(e.type == SDL_KEYDOWN){
-            switch(e.key.keysym.sym){
-                case SDLK_w:
-                {
-                    if(tmp==0){
-                        snake.turnUp();
-                        tmp=1;
-                        break;
-                    }else{
-                        break;
+        if(snake.getSize() < 10){
+            SDL_Delay(180);
+        }else if(snake.getSize() < 20){
+            SDL_Delay(140);
+        }else if(snake.getSize() < 100){
+            SDL_Delay(80);
+        }
+
+        if(snake.eat(food)){
+            Mix_PlayChannel(-1,sound_eat,0) ;
+            food.newPoint();
+        }
+        while( SDL_PollEvent(&e) != 0){
+            if(e.type == SDL_QUIT){
+                quitSDL(window, renderer);
+            }
+            if(e.type == SDL_KEYDOWN){
+                switch(e.key.keysym.sym){
+                    case SDLK_w:
+                    {
+                        if(tmp==0){
+                            snake.turnUp();
+                            tmp=1;
+                            break;
+                        }else{
+                            break;
+                        }
                     }
-                }
-                case SDLK_s:
-                {
-                    if(tmp==0){
-                        snake.turnDown();
-                        tmp=1;
-                        break;
-                    }else{
-                        break;
+                    case SDLK_s:
+                    {
+                        if(tmp==0){
+                            snake.turnDown();
+                            tmp=1;
+                            break;
+                        }else{
+                            break;
+                        }
                     }
-                }
-                case SDLK_a:
-                {
-                    if(tmp==1){
-                        snake.turnLeft();
-                        tmp=0;
-                        break;
-                    }else{
-                        break;
+                    case SDLK_a:
+                    {
+                        if(tmp==1){
+                            snake.turnLeft();
+                            tmp=0;
+                            break;
+                        }else{
+                            break;
+                        }
                     }
-                }
-                case SDLK_d:
-                {
-                    if(tmp==1){
-                        snake.turnRight();
-                        tmp=0;
-                        break;
-                    }else{
-                        break;
+                    case SDLK_d:
+                    {
+                        if(tmp==1){
+                            snake.turnRight();
+                            tmp=0;
+                            break;
+                        }else{
+                            break;
+                        }
                     }
+                    default: break;
                 }
-                default: break;
             }
         }
     }
@@ -235,15 +309,21 @@ void logSDLError(std::ostream& os,const std::string &msg, bool fatal)
     }
 }
 
-void initSDL(SDL_Window* &window, SDL_Renderer* &renderer)
+void initSDL(SDL_Window*& window, SDL_Renderer*& renderer)
 {
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0) logSDLError(std::cout, "SDL_Init", true);
+    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
+        logSDLError(std::cout, "SDL_Init", true);
+    if(Mix_OpenAudio( 44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0)
+    {
+        cout << "Not Audio" ;
+    }
     window = SDL_CreateWindow(WINDOW_TITLE.c_str(), SDL_WINDOWPOS_CENTERED,
-                              SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+        SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     if (window == nullptr) logSDLError(std::cout, "CreateWindow", true);
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED |
-    SDL_RENDERER_PRESENTVSYNC);
+        SDL_RENDERER_PRESENTVSYNC);
     if (renderer == nullptr) logSDLError(std::cout, "CreateRenderer", true);
+
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
     SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
@@ -253,6 +333,21 @@ void quitSDL(SDL_Window* window, SDL_Renderer* renderer)
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+}
+
+void waitUntilKeyPressed(SDL_Window* window, SDL_Renderer* renderer)
+{
+    SDL_Event e;
+    while(true){
+        while( SDL_PollEvent(&e) != 0){
+            if(e.type == SDL_QUIT ){
+                quitSDL(window, renderer);
+            }else if(e.type == SDL_KEYDOWN){
+                SDL_RenderClear( renderer );
+                return;
+            }
+        }
+    }
 }
 
 SDL_Texture *IMG_LoadTexture(SDL_Renderer *renderer, const char *file)
@@ -265,4 +360,3 @@ SDL_Texture *IMG_LoadTexture(SDL_Renderer *renderer, const char *file)
     }
     return texture;
 }
-
