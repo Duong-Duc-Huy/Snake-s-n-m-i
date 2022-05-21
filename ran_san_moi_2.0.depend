@@ -1,0 +1,42 @@
+# depslib dependency file v1.0
+1652260050 source:g:\ran_san_moi_2.0\main.cpp
+	<iostream>
+	<string>
+	<SDL.h>
+	<SDL_image.h>
+	<vector>
+	<cstdlib>
+	<ctime>
+	<chrono>
+
+1652799992 source:g:\ran_san_moi_2.0 - copy\main.cpp
+	"SDL_utilities.h"
+	"Snake.h"
+	"Food.h"
+
+1652280287 source:g:\ran_san_moi_2.0 - copy\food.cpp
+	"Food.h"
+
+1652797568 source:g:\ran_san_moi_2.0 - copy\sdl_utilities.cpp
+	"SDL_utilities.h"
+
+1652280303 source:g:\ran_san_moi_2.0 - copy\snake.cpp
+	"Snake.h"
+
+1652797692 g:\ran_san_moi_2.0 - copy\sdl_utilities.h
+	<iostream>
+	<string>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+
+1652263573 g:\ran_san_moi_2.0 - copy\food.h
+	<iostream>
+	<cstdlib>
+	<ctime>
+	"SDL_utilities.h"
+
+1652504732 g:\ran_san_moi_2.0 - copy\snake.h
+	<vector>
+	"Food.h"
+

@@ -7,7 +7,7 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/ran_san_moi_2.0" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Debug/ran_san_moi_2" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -16,7 +16,7 @@
 				</Compiler>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/ran_san_moi_2.0" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/Release/ran_san_moi_2" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
@@ -31,6 +31,16 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="Food.cpp" />
+		<Unit filename="Food.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="SDL_utilities.cpp" />
+		<Unit filename="SDL_utilities.h" />
+		<Unit filename="Snake.cpp" />
+		<Unit filename="Snake.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
