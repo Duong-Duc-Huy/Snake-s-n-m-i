@@ -167,3 +167,4 @@ int main(int argc, char* argv[])
     quitSDL(window, renderer);
     return 0;
 }
+

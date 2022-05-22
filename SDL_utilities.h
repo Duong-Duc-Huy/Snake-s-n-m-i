@@ -21,3 +21,4 @@ void waitUntilKeyPressed(SDL_Window* window, SDL_Renderer* renderer);
 SDL_Texture *IMG_LoadTexture(SDL_Renderer *renderer, const char *file);
 
 #endif // SDL_H_INCLUDED
+

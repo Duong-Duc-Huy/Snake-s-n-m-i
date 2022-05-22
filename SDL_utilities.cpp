@@ -65,3 +65,4 @@ SDL_Texture *IMG_LoadTexture(SDL_Renderer *renderer, const char *file)
     }
     return texture;
 }
+

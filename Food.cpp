@@ -22,3 +22,4 @@ int Food::getX(){
 int Food::getY(){
     return y;
 }
+

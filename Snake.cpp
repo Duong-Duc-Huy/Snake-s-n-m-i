@@ -59,3 +59,4 @@ bool Snake::eat(Food foodSnake){
     }
     return false;
 }
+
