@@ -1,0 +1,32 @@
+# depslib dependency file v1.0
+1653197884 source:c:\users\duong duc huy\desktop\snake-s-n-m-i\food.cpp
+	"Food.h"
+
+1653197884 c:\users\duong duc huy\desktop\snake-s-n-m-i\food.h
+	<iostream>
+	<cstdlib>
+	<ctime>
+	"SDL_utilities.h"
+
+1653197884 c:\users\duong duc huy\desktop\snake-s-n-m-i\sdl_utilities.h
+	<iostream>
+	<string>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+
+1653197884 source:c:\users\duong duc huy\desktop\snake-s-n-m-i\main.cpp
+	"SDL_utilities.h"
+	"Snake.h"
+	"Food.h"
+
+1653197884 c:\users\duong duc huy\desktop\snake-s-n-m-i\snake.h
+	<vector>
+	"Food.h"
+
+1653197884 source:c:\users\duong duc huy\desktop\snake-s-n-m-i\sdl_utilities.cpp
+	"SDL_utilities.h"
+
+1653197884 source:c:\users\duong duc huy\desktop\snake-s-n-m-i\snake.cpp
+	"Snake.h"
+
