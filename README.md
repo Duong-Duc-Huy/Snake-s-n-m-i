@@ -12,7 +12,7 @@ git clone https://github.com/Duong-Duc-Huy/Snake-s-n-m-i.git
 ## Getting Started
 
 Cách chơi:
-- Điều khiển con rắn bằng các nút W,A,S,D . Tránh va chạm với tường cũng như than của con rắn
+- Điều khiển con rắn bằng các nút W,A,S,D . Tránh va chạm với tường cũng như thân của con rắn
 - Điều khiển cho rắn ăn quả để rắn dài ra và chạy nhanh hơn
 - [Video Demo](https://www.youtube.com/watch?v=a-Bypq59fac)
 
